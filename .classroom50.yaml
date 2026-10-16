@@ -1,0 +1,12 @@
+schema: "classroom50/repo-config/v1"
+classroom: "mpt"
+assignment: "automation-basics"
+owner:
+  username: "Aokdi"
+  id: 170875252
+  accepted_at: "2026-10-16T03:54:51Z"
+source:
+  owner: "nsu-syspro"
+  owner_id: 115493553
+  repo: "mpt-automation-basics"
+  branch: "main"
