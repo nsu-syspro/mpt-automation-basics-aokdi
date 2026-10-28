@@ -8,7 +8,7 @@ VERSION := $(shell jq -r '.version' $(CONFIG))
 TARGET := $(BUILD_DIR)/$(NAME)
 SOURCE := src/wordcount.c
 
-CFLAGS ?= -Wall -Wextra
+CFLAGS := -Wall -Wextra
 
 TEST_FILES := $(wildcard test/*.txt)
 TEST_NAMES := $(patsubst test/%.txt,%,$(TEST_FILES))
@@ -21,7 +21,8 @@ TEST_TARGETS := $(addprefix check-,$(TEST_NAMES))
 all: $(TARGET)
 
 $(TARGET): $(SOURCE) $(CONFIG) | $(BUILD_DIR)
-	$(CC) $(CFLAGS) $(SOURCE) -o $@
+	$(CC) $(CFLAGS) -DNAME='"$(NAME)"' -DVERSION='"$(VERSION)"' \
+	       	$(SOURCE) -o $@
 
 $(BUILD_DIR):
 	mkdir -p $@
