@@ -9,7 +9,10 @@ TARGET := $(BUILD_DIR)/$(NAME)
 SOURCE := src/wordcount.c
 
 CFLAGS ?= -Wall -Wextra
-CPPFLAGS += -DNAME='"$(NAME)"' -DVERSION='"$(VERSION)"'
+
+TEST_FILES := $(wildcard test/*.txt)
+TEST_NAMES := $(patsubst test/%.txt,%,$(TEST_FILES))
+TEST_TARGETS := $(addprefix check-,$(TEST_NAMES))
 
 .DEFAULT_GOAL := all
 
@@ -18,7 +21,7 @@ CPPFLAGS += -DNAME='"$(NAME)"' -DVERSION='"$(VERSION)"'
 all: $(TARGET)
 
 $(TARGET): $(SOURCE) $(CONFIG) | $(BUILD_DIR)
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(SOURCE) -o $@
+	$(CC) $(CFLAGS) $(SOURCE) -o $@
 
 $(BUILD_DIR):
 	mkdir -p $@
@@ -26,16 +29,10 @@ $(BUILD_DIR):
 clean:
 	rm -rf $(BUILD_DIR)
 
+check: $(TEST_TARGETS)
 
-check: $(TARGET)
+check-%: test/%.txt test/%.expected $(TARGET)
 	@set -eu; \
-	tmpdir=$$(mktemp -d); \
-	trap 'rm -rf "$$tmpdir"' EXIT HUP INT TERM; \
-	for input in test/*.txt; do \
-		expected="$${input%.txt}.expected"; \
-		actual="$$tmpdir/output"; \
-		"$(TARGET)" "$$input" > "$$actual"; \
-		if ! diff -u "$$expected" "$$actual"; then \
-			exit 1; \
-		fi; \
-	done
+	if ! (./$(TARGET) test/$*.txt | diff -u test/$*.expected -); then \
+		exit 1; \
+	fi
